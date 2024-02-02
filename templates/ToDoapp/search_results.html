@@ -1,0 +1,20 @@
+{% block content %}
+    <h1>Результати пошуку для: "{{ query }}"</h1>
+    
+    <div id="search-results">
+        {% if results %}
+            <ul>
+                {% for result in results %}
+                    <li>{{ result.title }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div id="no-results" style="display: none;">
+                <p>Нічого не знайдено.</p>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Решта вашого контенту може йти тут -->
+    
+{% endblock %}

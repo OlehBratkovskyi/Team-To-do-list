@@ -1,0 +1,23 @@
+{% extends 'ToDoapp/layout.html' %}
+
+{% block content %}
+    <h1>Редагування групи "{{ group.name }}"</h1>
+    <form method="post" action="{% url 'edit_user_group' group.id %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="d-grid gap-2">
+            <button class="btn btn-primary"  type="submit">Зберегти зміни</button>
+        </div>
+    </form>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    {{ form.media.js }}
+    {{ form.media.css }}
+    
+    <h3>Учасники:</h3>
+    <ul>
+        {% for member in group.members.all %}
+            <li>{{ member.username }} ({{ member.first_name }} {{ member.last_name }})</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

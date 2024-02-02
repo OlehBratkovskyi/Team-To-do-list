@@ -1,0 +1,430 @@
+<!-- create_task.html -->
+{% extends 'ToDoapp/layout.html' %}
+
+{% block content %}
+
+<div class="container-add-searching" >  
+    <div class="add-task">
+    <span class="add_new_task">Створити нове завдання 
+        <label for="showPopup" class="add_icon">
+            <svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 -960 960 960">
+                <path d="M450-450H200v-60h250v-250h60v250h250v60H510v250h-60v-250Z"/>
+            </svg>
+        </label>
+    </span>
+
+    <input type="checkbox" id="showPopup" style="display: none">
+        
+    <div class="popup" id="hiddenPopup">
+        <div class="messages-container"></div>
+
+        <div class="popup-add">
+            <label for="showPopup" class="closed_icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+                    <path d="m249-207-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z"/>
+                </svg>
+            </label>
+            <form class="form" action="{% url 'add' %}" method="post" id="create-task-form">
+                {% csrf_token %}
+                <div class="field">
+                    <label for="group-selector">Виберіть групу:</label>
+                    <select class="form-select" id="group-selector" name="user_group">
+                    <!-- Опції для вибору групи будуть додаватися динамічно за допомогою JavaScript -->
+                    </select>
+                    <label for="user-selector">Виберіть користувача:</label>
+                    <select class="form-select" id="user-selector" name="assigned_to">
+                    <!-- Опції для вибору користувача також будуть додаватися динамічно -->
+                    </select>
+                    <label for="task-title">Назва завдання:</label>
+                    <input type="text" id="task-title" name="title" required>
+                    <label for="task-description">Опис завдання:</label>
+                    <textarea id="task-description" name="description" required></textarea>
+                    <label for="task-deadline">Дедлайн:</label>
+                    <input type="datetime-local" id="task-deadline" name="deadline" required>
+                    <br>              
+                </div>
+                <div class="d-grid gap-2 col-4 mx-auto">
+                    <button class="btn btn-primary btn-lg" type="button" onclick="createTask(event)">Створити завдання</button>
+                </div>
+            </form>
+            
+        </div>
+    </div>
+    <div class="searching">
+        <form method="get" action="{% url 'search' %}">
+            <div class="input-group mb-3">
+              <input type="text" class="form-control" placeholder="Пошук за назвою завдання" name="q">
+              <button class="btn btn-outline-secondary" type="submit">Пошук</button>
+            </div>
+        </form>
+    </div>
+</div>
+<hr class="my-2">
+<p class="name_list">Завдання призначені другим користувачам:</p>
+<hr class="my-2">
+    {% if results %}
+    <div class="search-results">
+        {% for result in results %}
+            <div class="search-result">
+                <div class="segments">
+                    <p class="header">{{ result.title }}</p>
+                    <span class="delete-task" data-task-id="{{ result.id }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+                        <path d="m249-207-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z"/>
+                    </svg>
+                    </span>
+                <!-- Попап для редагування завдання -->
+                <a class="edit_task" href="#edit-{{ result.id }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+                        <path d="M180-180h44l443-443-44-44-443 443v44Zm614-486L666-794l42-42q17-17 42-17t42 17l44 44q17 17 17 42t-17 42l-42 42Zm-42 42L248-120H120v-128l504-504 128 128Zm-107-21-22-22 44 44-22-22Z"/>
+                    </svg>
+                </a>
+            
+                <div class="popup_edit" id="edit-{{ result.id }}">
+                    <div class="popup-content">
+                        <a class="closed_icon" href="#">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+                                <path d="m249-207-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z"/>
+                            </svg>
+                        </a>
+                        <form method="post" action="{% url 'edit_task' result.id %}">
+                            {% csrf_token %}
+                            <div class="task-info">
+                                <p class="title-info">Назва завдання: <input type="text" name="new_title" value="{{ result.title }}"></p>
+                                <p class="description-info">Опис завдання: </p>
+                                <textarea class="description-textaria" name="new_description" rows="8">{{ result.description }}</textarea>
+                                <label for="task-deadline">Дедлайн:</label>
+                                <input type="datetime-local" id="task-deadline" name="new_deadline" value="{{ result.deadline|date:'Y-m-d\TH:i' }}" required>
+                            </div>
+                            <div class="d-grid gap-2 col-4 mx-auto">
+                                <button class="btn btn-primary btn-lg" type="submit">Зберегти зміни</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                    <p>Створено: {{ result.created_at|date:"D, d M Y H:i:s" }}</p>
+                    <p>Дедлайн: {{ result.deadline|date:"D, d M Y H:i:s" }}</p>      
+                    <p class="header">Призначено: {{ result.assigned_to.user.first_name }} {{ result.assigned_to.user.last_name }}</p>
+                    {% if result.description %}
+                    <label for="showPopup_details_{{ result.id }}" class="detail">Опис 
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="view-icon">
+                            <path d="M480.118-330Q551-330 600.5-379.618q49.5-49.617 49.5-120.5Q650-571 600.382-620.5q-49.617-49.5-120.5-49.5Q409-670 359.5-620.382q-49.5 49.617-49.5 120.5Q310-429 359.618-379.5q49.617 49.5 120.5 49.5Zm-.353-58Q433-388 400.5-420.735q-32.5-32.736-32.5-79.5Q368-547 400.735-579.5q32.736-32.5 79.5-32.5Q527-612 559.5-579.265q32.5 32.736 32.5 79.5Q592-453 559.265-420.5q-32.736 32.5-79.5 32.5ZM480-200q-146 0-264-83T40-500q58-134 176-217t264-83q146 0 264 83t176 217q-58 134-176 217t-264 83Zm0-300Zm-.169 240Q601-260 702.5-325.5 804-391 857-500q-53-109-154.331-174.5-101.332-65.5-222.5-65.5Q359-740 257.5-674.5 156-609 102-500q54 109 155.331 174.5 101.332 65.5 222.5 65.5Z"/>
+                        </svg>
+                    </label>
+            
+                    <input type="checkbox" id="showPopup_details_{{ result.id }}" style="display: none">
+                    
+                    <div class="popup_detail" id="hiddenPopup-details_{{ result.id }}">
+                        <div class="detailpop">
+                            <label for="showPopup_details_{{ task.id }}" class="closed_icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+                                    <path d="m249-207-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z"/>
+                                </svg>
+                            </label>
+                            <div class="task-info">
+                                <p class="title-info">Назва завдання: <input type="text" name="new_title" readonly value="{{ result.title }}"></p>
+                                <p class="description-info">Призначено: {{ result.assigned_to.user.first_name }} {{ result.assigned_to.user.last_name }}</p>
+                                <p class="description-info">Опис завдання: </p>
+                                <textarea class="description-textaria" rows="8" readonly>{{ result.description }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if result.is_complete %}
+                    <div class="status-task2">
+                        <span class="green_lable">Виконано</span>
+                    </div>
+                    {% else %}
+                    <div class="status-task1">
+                        <span class="grey_lable">Не завершено</span>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+    </div>
+    {% endif %}
+
+<div class="assigned-tasks">
+    {% for task in created_tasks %}
+    <div class="segments">
+        <p class="header">{{ task.title }}</p>
+        <p class="timert" id="timer-t{{ task.id }}">{{ task.elapsed_time_task_formatted }}</p>                 
+        <span class="delete-task" data-task-id="{{ task.id }}">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+            <path d="m249-207-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z"/>
+            </svg>
+        </span>
+        <!-- Попап для редагування завдання -->
+        <a class="edit_task" href="#edit-{{ task.id }}">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+            <path d="M180-180h44l443-443-44-44-443 443v44Zm614-486L666-794l42-42q17-17 42-17t42 17l44 44q17 17 17 42t-17 42l-42 42Zm-42 42L248-120H120v-128l504-504 128 128Zm-107-21-22-22 44 44-22-22Z"/>
+        </svg>
+        </a>
+
+        <div class="popup_edit" id="edit-{{ task.id }}">
+        <div class="popup-content">
+            <a class="closed_icon" href="#">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+                    <path d="m249-207-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z"/>
+                </svg>
+            </a>
+            <form method="post" action="{% url 'edit_task' task.id %}">
+                {% csrf_token %}
+                <div class="task-info">
+                    <p class="title-info">Назва завдання: <input type="text" name="new_title" value="{{ task.title }}"></p>
+                    <p class="description-info">Опис завдання: </p>
+                    <textarea class="description-textaria" name="new_description" rows="8">{{ task.description }}</textarea>
+                    <label for="task-deadline">Дедлайн:</label>
+                    <input type="datetime-local" id="task-deadline" name="new_deadline" value="{{ task.deadline|date:'Y-m-d\TH:i' }}" required>
+                </div>
+                <div class="d-grid gap-2 col-4 mx-auto">
+                    <button class="btn btn-primary btn-lg" type="submit">Зберегти зміни</button>
+                </div>
+            </form>
+        </div>
+        </div>
+
+        <p class="created_at">Створено: {{ task.created_at|date:"D, d M Y H:i:s" }}</p>
+        <p>Дедлайн: {{ task.deadline|date:"D, d M Y H:i:s" }}</p>      
+        <p class="header">Призначено: {{ task.assigned_to.user.first_name }} {{ task.assigned_to.user.last_name }}</p>
+        {% if task.description %}
+        <label for="showPopup_details_{{ task.id }}" class="detail">Опис 
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="view-icon">
+                <path d="M480.118-330Q551-330 600.5-379.618q49.5-49.617 49.5-120.5Q650-571 600.382-620.5q-49.617-49.5-120.5-49.5Q409-670 359.5-620.382q-49.5 49.617-49.5 120.5Q310-429 359.618-379.5q49.617 49.5 120.5 49.5Zm-.353-58Q433-388 400.5-420.735q-32.5-32.736-32.5-79.5Q368-547 400.735-579.5q32.736-32.5 79.5-32.5Q527-612 559.5-579.265q32.5 32.736 32.5 79.5Q592-453 559.265-420.5q-32.736 32.5-79.5 32.5ZM480-200q-146 0-264-83T40-500q58-134 176-217t264-83q146 0 264 83t176 217q-58 134-176 217t-264 83Zm0-300Zm-.169 240Q601-260 702.5-325.5 804-391 857-500q-53-109-154.331-174.5-101.332-65.5-222.5-65.5Q359-740 257.5-674.5 156-609 102-500q54 109 155.331 174.5 101.332 65.5 222.5 65.5Z"/>
+            </svg>
+        </label>
+
+        <input type="checkbox" id="showPopup_details_{{ task.id }}" style="display: none">
+        
+        <div class="popup_detail" id="hiddenPopup-details_{{ task.id }}">
+            <div class="detailpop">
+                <label for="showPopup_details_{{ task.id }}" class="closed_icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+                        <path d="m249-207-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z"/>
+                    </svg>
+                </label>
+                <div class="task-info">
+                    <p class="title-info">Назва завдання: <input type="text" name="new_title" readonly value="{{ task.title }}"></p>
+                    <p class="description-info">Призначено: {{ task.assigned_to.user.first_name }} {{ task.assigned_to.user.last_name }}</p>
+                    <p class="description-info">Опис завдання: </p>
+                    <textarea class="description-textaria" rows="8" readonly>{{ task.description }}</textarea>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% if task.is_complete %}
+            <div class="status-task2">
+            <span class="green_lable">Виконано</span>
+            </div>
+        {% else %}
+            <div class="status-task1">
+            <span class="grey_lable">Не завершено</span>
+            </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+    </div>
+    <!-- Додати блок коду для виведення посилань на інші сторінки -->
+    <div class="pagination justify-content-center">
+    <ul class="pagination">
+        {% if created_tasks.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page=1">&laquo; перша</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ created_tasks.previous_page_number }}"><</a></li>
+        {% endif %}
+
+        <li class="page-item"><span class="page-link">{{ created_tasks.number }} з {{ created_tasks.paginator.num_pages }}.</span></li>
+
+        {% if created_tasks.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ created_tasks.next_page_number }}">></a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ created_tasks.paginator.num_pages }}">остання &raquo;</a></li>
+        {% endif %}
+    </ul>
+    </div>
+<!-- Інші частини коду ... -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Отримання списку груп при завантаженні сторінки
+        $.ajax({
+            url: '/team_task/list_user_groups/',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                var groupSelector = $('#group-selector');
+                $.each(data.user_groups, function (key, value) {
+                    groupSelector.append($('<option></option>').attr('value', value.id).text(value.name));
+                });
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                console.log(xhr.status);
+                console.log(thrownError);
+            },
+        });
+
+        // Обробник події для зміни вибраної групи
+        $('#group-selector').change(function () {
+            var groupId = $(this).val();
+            // Отримання списку користувачів для вибраної групи
+            $.ajax({
+                url: `/team_task/get_users_for_group/${groupId}/`,
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    var userSelector = $('#user-selector');
+                    userSelector.empty();
+                    $.each(data.users, function (key, value) {
+                        // Додайте опцію із username, ім'ям та прізвищем
+                        var optionText = `${value.username} (${value.first_name} ${value.last_name})`;
+                        userSelector.append($('<option></option>').attr('value', value.id).text(optionText));
+                    });
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    console.log(xhr.status);
+                    console.log(thrownError);
+                },
+            });
+        });
+
+        // JavaScript-функція для створення завдання
+        function createTask(event) {
+            // Зупинка відправлення форми
+            event.preventDefault();
+
+            var formData = $('#create-task-form').serialize();
+            $.ajax({
+                url: '/team_task/create_task/',
+                type: 'POST',
+                data: formData,
+                success: function (data) {
+                    // Виведення отриманих даних у консоль
+                    console.log('Success Response:', data);
+
+                    if (data.success && data.task) {
+                        // Додайте нове завдання до списку без перезавантаження сторінки
+                        var taskList = $('.assigned-tasks');
+                        var formattedCreatedAt = moment(data.task.created_at).format("ddd, DD MMM YYYY HH:mm:ss");
+                        var formattedDeadline = moment(data.task.deadline).format("ddd, DD MMM YYYY HH:mm:ss");
+
+                        taskList.prepend('<div class="segments">' +
+                            '<p class="header">' + data.task.title + '</p>' +
+                            '<p>Дедлайн: ' + formattedDeadline + '</p>' +
+                            '<p class="created_at">Створено: ' + formattedCreatedAt + '</p>' +
+                            '<p class="header">Призначено: ' + data.task.assigned_to.first_name + ' ' + data.task.assigned_to.last_name + '</p>' +
+                            (data.task.description ? '<label for="showPopup_details_' + data.task.id + '" class="detail">Опис ' +
+                                '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="view-icon">' +
+                                '<path d="M480.118-330Q551-330 600.5-379.618q49.5-49.617 49.5-120.5Q650-571 600.382-620.5q-49.617-49.5-120.5-49.5Q409-670 359.5-620.382q-49.5 49.617-49.5 120.5Q310-429 359.618-379.5q49.617 49.5 120.5 49.5Zm-.353-58Q433-388 400.5-420.735q-32.5-32.736-32.5-79.5Q368-547 400.735-579.5q32.736-32.5 79.5-32.5Q527-612 559.5-579.265q32.5 32.736 32.5 79.5Q592-453 559.265-420.5q-32.736 32.5-79.5 32.5ZM480-200q-146 0-264-83T40-500q58-134 176-217t264-83q146 0 264 83t176 217q-58 134-176 217t-264 83Zm0-300Zm-.169 240Q601-260 702.5-325.5 804-391 857-500q-53-109-154.331-174.5-101.332-65.5-222.5-65.5Q359-740 257.5-674.5 156-609 102-500q54 109 155.331 174.5 101.332 65.5 222.5 65.5Z"></path>' +
+                                '</svg>' +
+                                '</label>' +
+                                '<input type="checkbox" id="showPopup_details_' + data.task.id + '" style="display: none">' +
+                                '<div class="popup_detail" id="hiddenPopup-details_' + data.task.id + '">' +
+                                '<div class="detailpop">' +
+                                '<label for="showPopup_details_' + data.task.id + '" class="closed_icon">' +
+                                '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">' +
+                                '<path d="m249-207-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z"></path>' +
+                                '</svg>' +
+                                '</label>' +
+                                '<div class="task-info">' +
+                                '<p class="title-info">Назва завдання: <input type="text" name="new_title" readonly value="' + data.task.title + '"></p>' +
+                                '<p class="description-info">Призначено: ' + data.task.assigned_to.first_name + ' ' + data.task.assigned_to.last_name + '</p>' +
+                                '<p class="description-info">Опис завдання: </p>' +
+                                '<textarea class="description-textaria" rows="8" readonly>' + data.task.description + '</textarea>' +
+                                '</div>' +
+                                '</div>' +
+                                '</div>'
+                                : '') +
+                            (data.task.is_complete ? '<div class="status-task2"><span class="green_lable">Виконано</span></div>' : '<div class="status-task1"><span class="grey_lable">Не завершено</span></div>') +
+                            // Додаємо значки delete_task і edit_task
+                            '<span class="delete-task" data-task-id="' + data.task.id + '">' +
+                            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">' +
+                            '<path d="m249-207-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z"></path>' +
+                            '</svg>' +
+                            '</span>' +
+                            '<a class="edit_task" href="#edit-' + data.task.id + '">' +
+                            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">' +
+                            '<path d="M180-180h44l443-443-44-44-443 443v44Zm614-486L666-794l42-42q17-17 42-17t42 17l44 44q17 17 17 42t-17 42l-42 42Zm-42 42L248-120H120v-128l504-504 128 128Zm-107-21-22-22 44 44-22-22Z"/>' +
+                            '</svg>' +
+                            '</a>' +
+                            '</div>'
+                        );
+
+                        // Додайте повідомлення про успішне створення завдання
+                        var successMessage = 'Завдання "' + data.task.title + '" успішно створено!';
+                        showMessage(successMessage, 'success');
+
+                        // Очистіть поля форми
+                        $('#create-task-form')[0].reset();
+                    } else {
+                        // Обробка помилки створення завдання
+                        console.log('Error creating task:', data.error);
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    // Обробка помилки створення завдання
+                    console.log('Request Failed:', xhr.status, thrownError);
+                },
+            });
+        }
+
+        // Призначте обробник подій для кнопки
+        $('#create-task-form button').on('click', createTask);
+
+        // Функція для виведення повідомлення
+        function showMessage(message, messageType) {
+            var messagesContainer = $('.messages-container');
+            var alertClass = 'alert-' + messageType;
+            
+            // Створення елемента сповіщення
+            var alertElement = $('<div class="alert ' + alertClass + ' d-flex align-items-center" role="alert">' +
+                '<svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Alert"><use xlink:href="#exclamation-triangle-fill"/></svg>' +
+                '<div>' + message + '</div>' +
+                '</div>');
+            
+            messagesContainer.append(alertElement);
+
+            // Зникнення сповіщення через певний час (наприклад, 5 секунд)
+            setTimeout(function () {
+                alertElement.fadeOut('slow', function () {
+                    $(this).remove();
+                });
+            }, 5000);
+        }
+
+        // JavaScript-функція для видалення завдання
+        function deleteTask(taskId) {
+            $.ajax({
+                url: `/team_task/delete_task/${taskId}/`,  // Замініть на відповідний URL у ваших маршрутах
+                type: 'POST',
+                data: { 'csrfmiddlewaretoken': '{{ csrf_token }}' },  // Додайте токен CSRF для захисту від CSRF-атак
+                success: function (data) {
+                    // Виведення отриманих даних у консоль
+                    console.log('Success Response:', data);
+
+                    if (data.success) {
+                        // Перезавантажте сторінку після видалення завдання
+                        location.reload();
+                    } else {
+                        // Обробка помилки видалення завдання
+                        console.log('Error deleting task:', data.error);
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    // Обробка помилки видалення завдання
+                    console.log('Request Failed:', xhr.status, thrownError);
+                },
+            });
+        }
+
+        // Призначте обробник подій для значка видалення
+        $('.delete-task').on('click', function () {
+            var taskId = $(this).data('task-id');
+            deleteTask(taskId);
+        });
+
+    });
+
+</script>
+
+{% endblock %}

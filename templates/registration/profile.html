@@ -1,0 +1,51 @@
+{% extends 'ToDoapp/layout.html' %}
+
+{% block content %}
+    {% if user.is_authenticated %}
+
+    <div class="container">
+        <h2>Профіль користувача</h2>
+        <form method="post" action="{% url 'profile' %}">
+          {% csrf_token %}
+          <div class="col-md-4">
+            <label for="validationDefault01" class="form-label">Ім'я</label>
+            <input type="text" name="first_name" class="form-control" id="validationDefault01" value="{{ user.first_name }}" required>
+          </div>
+          <div class="col-md-4">
+            <label for="validationDefault02" class="form-label">Прізвище</label>
+            <input type="text" name="last_name" class="form-control" id="validationDefault02" value="{{ user.last_name }}" required>
+          </div>
+          <div class="col-md-4">
+            <label for="validationDefaultUsername" class="form-label">Ім'я користувача</label>
+            <div class="input-group">
+              <span class="input-group-text" id="inputGroupPrepend2">@</span>
+              <input type="text" name="username" class="form-control" id="validationDefaultUsername" value="{{ user.username }}" aria-describedby="inputGroupPrepend2" required>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label for="validationDefaultEmail" class="form-label">Email</label>
+            <input type="text" name="email" class="form-control" id="validationDefaultEmail" value="{{ user.email }}" required>
+          </div>
+          <br>
+          <div class="col-md-4">
+            <button type="submit" class="btn btn-primary">Зберегти зміни</button>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label for="validationDefaultPassword" class="form-label">Новий пароль</label>
+            <input type="password" name="new_password" class="form-control" id="validationDefaultPassword" required>
+          </div>
+          <div class="col-md-4 mb-3">
+            <label for="validationDefaultPasswordConfirm" class="form-label">Підтвердіть пароль</label>
+            <input type="password" name="confirm_password" class="form-control" id="validationDefaultPasswordConfirm" required>
+          </div>
+
+          <div class="col-md-4">
+            <button type="submit" class="btn btn-primary">Змінити пароль</button>
+          </div>
+        </form>
+    </div>
+    {% else %}
+    <p>Ви не виконали вхід</p>
+    <a href="{% url 'login' %}">Вхід</a>
+    {% endif %}
+{% endblock %}

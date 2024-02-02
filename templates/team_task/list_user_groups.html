@@ -1,0 +1,25 @@
+{% extends 'ToDoapp/layout.html' %}
+
+{% block content %}
+    <ul>
+        {% for group in user_groups %}
+        <li>
+            <strong>{{ group.name }}</strong>
+            <a class="edit_group" href="{% url 'edit_user_group' group.id %}">Редагувати</a>
+            <a class="delete_group" href="{% url 'delete_user_group' group.id %}">Видалити</a>
+            <ul>
+                {% for member in group.members.all %}
+                    <li>{{ member.username }}</li>
+                {% endfor %}
+            </ul>
+        </li>
+        {% endfor %}
+    </ul>
+    <form method="post" action="{% url 'create_user_group' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Створити групу</button>
+    </form>
+    {{ form.media.js }}
+    {{ form.media.css }}
+{% endblock %}

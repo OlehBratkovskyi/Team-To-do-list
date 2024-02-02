@@ -1,0 +1,259 @@
+{% extends 'ToDoapp/layout.html' %}
+{% block content %}
+<div class="searching">
+    <form method="get" action="{% url 'search_tasks' %}">
+        <div class="input-group mb-3">
+          <input type="text" class="form-control" placeholder="Пошук за назвою завдання" name="q">
+          <button class="btn btn-outline-secondary" type="submit">Пошук</button>
+        </div>
+    </form>
+</div>
+<hr class="my-2">
+<p class="name_list">Завдання, призначені для вас:</p>
+<hr class="my-2">
+{% if results_task %}
+<div class="search-results">
+    {% for result in results_task %}
+        <div class="segments">
+            <p class="header">{{ result.title }}</p>
+            <p class="created_at">Створено: {{ result.created_at|date:"D, d M Y H:i:s" }}</p>
+            <p>Дедлайн: {{ result.deadline|date:"D, d M Y H:i:s" }}</p>      
+            <p>Призначив: {{ result.created_by.first_name }} {{ result.created_by.last_name }}</p>
+            {% if result.description %}
+            <label for="showPopup_details_{{ result.id }}" class="detail">Опис 
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="view-icon">
+                    <path d="M480.118-330Q551-330 600.5-379.618q49.5-49.617 49.5-120.5Q650-571 600.382-620.5q-49.617-49.5-120.5-49.5Q409-670 359.5-620.382q-49.5 49.617-49.5 120.5Q310-429 359.618-379.5q49.617 49.5 120.5 49.5Zm-.353-58Q433-388 400.5-420.735q-32.5-32.736-32.5-79.5Q368-547 400.735-579.5q32.736-32.5 79.5-32.5Q527-612 559.5-579.265q32.5 32.736 32.5 79.5Q592-453 559.265-420.5q-32.736 32.5-79.5 32.5ZM480-200q-146 0-264-83T40-500q58-134 176-217t264-83q146 0 264 83t176 217q-58 134-176 217t-264 83Zm0-300Zm-.169 240Q601-260 702.5-325.5 804-391 857-500q-53-109-154.331-174.5-101.332-65.5-222.5-65.5Q359-740 257.5-674.5 156-609 102-500q54 109 155.331 174.5 101.332 65.5 222.5 65.5Z"/>
+                </svg>
+            </label>
+    
+                <input type="checkbox" id="showPopup_details_{{ result.id }}" style="display: none">
+                
+                <div class="popup_detail" id="hiddenPopup-details_{{ result.id }}">
+                    <div class="detailpop">
+                        <label for="showPopup_details_{{ result.id }}" class="closed_icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+                                <path d="m249-207-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z"/>
+                            </svg>
+                        </label>
+                        <div class="task-info">
+                            <p class="title-info">Назва завдання: <input type="text" name="new_title" readonly value="{{ result.title }}"></p>
+                            <p class="description-info">Опис завдання: </p>
+                            <textarea class="description-textaria" rows="8" readonly>{{ result.description }}</textarea>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% if result.is_complete == False %}
+                <div class="status-task1">
+                    <span class="grey_lable">Не завершено</span>
+                    <a class="end_task_button" href="{% url 'toggle_complete' todo_id=result.id %}">Завершити</a>
+                </div>
+                {% else %}
+                <div class="status-task2">
+                    <span class="green_lable">Виконано</span>
+                    <a class="open_button" href="{% url 'toggle_complete' todo_id=result.id %}">Відкрити</a>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+</div>
+{% endif %}
+
+    {% for task in assigned_tasks %}
+        <div class="segments">
+            <p class="header">{{ task.title }}</p>
+            <p class="timert_assigned" id="timer-t{{ task.id }}">{{ task.elapsed_time_task_formatted }}</p>                 
+            <div class="timer_progress">  
+                <form method="post" action="{% url 'timers_task' %}">
+                    {% csrf_token %}
+                    <p class="timer" id="timer-{{ task.id }}">00:00:00</p>
+                    <button type="button" class="btn btn-primary" name="start" data-task-id="{{ task.id|safe }}" onclick="startStopwatch('{{ task.id|safe }}')">Старт</button>
+                    <button type="button" name="stop" class="btn btn-danger" data-task-id="{{ task.id|safe }}" onclick="stopStopwatch('{{ task.id|safe }}')">Стоп</button>
+                </form>
+            </div>
+            <p class="created_at">Створено: {{ task.created_at|date:"D, d M Y H:i:s" }}</p>
+            <p>Дедлайн: {{ task.deadline|date:"D, d M Y H:i:s" }}</p>      
+            <p>Призначив: {{ task.created_by.first_name }} {{ task.created_by.last_name }}</p>
+            {% if task.description %}
+            <label for="showPopup_details_{{ task.id }}" class="detail">Опис 
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960" class="view-icon">
+                    <path d="M480.118-330Q551-330 600.5-379.618q49.5-49.617 49.5-120.5Q650-571 600.382-620.5q-49.617-49.5-120.5-49.5Q409-670 359.5-620.382q-49.5 49.617-49.5 120.5Q310-429 359.618-379.5q49.617 49.5 120.5 49.5Zm-.353-58Q433-388 400.5-420.735q-32.5-32.736-32.5-79.5Q368-547 400.735-579.5q32.736-32.5 79.5-32.5Q527-612 559.5-579.265q32.5 32.736 32.5 79.5Q592-453 559.265-420.5q-32.736 32.5-79.5 32.5ZM480-200q-146 0-264-83T40-500q58-134 176-217t264-83q146 0 264 83t176 217q-58 134-176 217t-264 83Zm0-300Zm-.169 240Q601-260 702.5-325.5 804-391 857-500q-53-109-154.331-174.5-101.332-65.5-222.5-65.5Q359-740 257.5-674.5 156-609 102-500q54 109 155.331 174.5 101.332 65.5 222.5 65.5Z"/>
+                </svg>
+            </label>
+      
+            <input type="checkbox" id="showPopup_details_{{ task.id }}" style="display: none">
+            
+            <div class="popup_detail" id="hiddenPopup-details_{{ task.id }}">
+                <div class="detailpop">
+                    <label for="showPopup_details_{{ task.id }}" class="closed_icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 960 960">
+                            <path d="m249-207-42-42 231-231-231-231 42-42 231 231 231-231 42 42-231 231 231 231-42 42-231-231-231 231Z"/>
+                        </svg>
+                    </label>
+                    <div class="task-info">
+                        <p class="title-info">Назва завдання: <input type="text" name="new_title" readonly value="{{ task.title }}"></p>
+                        <p class="description-info">Опис завдання: </p>
+                        <textarea class="description-textaria" rows="8" readonly>{{ task.description }}</textarea>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% if task.is_complete == False %}
+            <div class="status-task1">
+                <span class="grey_lable">Не завершено</span>
+                <a class="end_task_button" href="{% url 'toggle_complete' todo_id=task.id %}">Завершити</a>
+            </div>
+            {% else %}
+            <div class="status-task2">
+                <span class="green_lable">Виконано</span>
+                <a class="open_button" href="{% url 'toggle_complete' todo_id=task.id %}">Відкрити</a>
+            </div>
+            {% endif %}
+        </div>
+        
+    {% endfor %}
+    <div class="pagination justify-content-center">
+        <ul class="pagination">
+          {% if assigned_tasks.has_previous %}
+            <li class="page-item"><a class="page-link" href="?page=1">&laquo; перша</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ assigned_tasks.previous_page_number }}"><</a></li>
+          {% endif %}
+      
+          <li class="page-item"><span class="page-link">{{ assigned_tasks.number }} з {{ assigned_tasks.paginator.num_pages }}.</span></li>
+      
+          {% if assigned_tasks.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ assigned_tasks.next_page_number }}">></a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ assigned_tasks.paginator.num_pages }}">остання &raquo;</a></li>
+          {% endif %}
+        </ul>
+      </div>
+      <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                function updateTabIcon(count) {
+                    var title = document.title;
+                    var newTitle = title.replace(/\(Не завершено \d+\)/, ''); // Видаляємо попередню кількість з заголовка
+                    document.title = count > 0 ? `(Не завершено ${count}) ${newTitle}` : newTitle;
+                }
+        
+                // Викликайте цю функцію, якщо вам потрібно оновити кількість завдань на вкладці
+                updateTabIcon('{{ incoming_tasks_count }}');
+            });
+
+
+            let timerInterval;
+
+            function startStopwatch(taskId) {
+                $.post('/team_task/timers/', { action: 'start', task_id: taskId, csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val() }, function (response) {
+                    if (response.status === 'success') {
+                        // Починаємо відлік з 0, якщо таймер не був зупинений
+                        const initialTime = response.elapsed_time_task && !response.timer_stopped ? 0 : response.elapsed_time_task;
+                        updateTimer(taskId, initialTime);
+
+                        timerInterval = setInterval(function () {
+                            if (!response.timer_stopped) {
+                                response.elapsed_time_task = response.elapsed_time_task ? response.elapsed_time_task + 1 : 1;
+                            }
+                            updateTimer(taskId, response.elapsed_time_task);
+                        }, 1000);
+                    } else {
+                        console.error('Помилка при старті секундоміра');
+                    }
+                });
+            }
+
+
+            function stopStopwatch(taskId) {
+                clearInterval(timerInterval);
+
+                $.post('/team_task/timers/', { action: 'stop', task_id: taskId, csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val() }, function (response) {
+                    if (response.status === 'success') {
+                        // Очищаємо значення lastStoppedTime, оскільки таймер більше не зупинений
+                        // lastStoppedTime = null; // Ви можете видалити цей рядок, оскільки lastStoppedTime не використовується
+                        // Оновлюємо таймер, щоб відобразити 00:00:00
+                        updateTimer(taskId, 0);
+
+                        // Оновлюємо сторінку після успішного зупинки таймера
+                        location.reload();
+                    } else {
+                        console.error('Помилка при зупинці секундоміра');
+                    }
+                });
+            }
+
+
+        
+            function pauseStopwatch(taskId) {
+                clearInterval(timerInterval);
+                $.post('/team_task/timers/', { action: 'pause', task_id: taskId, csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val() }, function (response) {
+                    if (response.status === 'success') {
+                        lastStoppedTime = response.elapsed_time_task;
+                        updateTimer(taskId, response.elapsed_time_task);
+                    } else {
+                        console.error('Помилка при паузі секундоміра');
+                    }
+                });
+            }
+        
+            // Решта вашого коду залишається незмінним
+            document.addEventListener('DOMContentLoaded', function () {
+                const startButtons = document.querySelectorAll('button[name="start"]');
+                const pauseButtons = document.querySelectorAll('button[name="pause"]');
+                const stopButtons = document.querySelectorAll('button[name="stop"]');
+        
+                startButtons.forEach(function (button) {
+                    button.addEventListener('click', function () {
+                        const taskId = button.getAttribute('data-task-id');
+                        startStopwatch(taskId);
+                    });
+                });
+        
+                pauseButtons.forEach(function (button) {
+                    button.addEventListener('click', function () {
+                        const taskId = button.getAttribute('data-task-id');
+                        pauseStopwatch(taskId);
+                    });
+                });
+        
+                stopButtons.forEach(function (button) {
+                    button.addEventListener('click', function () {
+                        const taskId = button.getAttribute('data-task-id');
+                        stopStopwatch(taskId);
+                    });
+                });
+            });
+        
+            function updateTimer(taskId, elapsedSeconds) {
+                const timerElement = document.getElementById('timer-' + taskId);
+        
+                if (timerElement) {
+                    // Перевірка, чи elapsedSeconds - число, інакше встановлюємо 0
+                    elapsedSeconds = typeof elapsedSeconds === 'number' ? elapsedSeconds : 0;
+        
+                    const hours = Math.floor(elapsedSeconds / 3600);
+                    const minutes = Math.floor((elapsedSeconds % 3600) / 60);
+                    const seconds = elapsedSeconds % 60;
+        
+                    const formattedHours = hours < 10 ? '0' + hours : hours;
+                    const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
+                    const formattedSeconds = seconds < 10 ? '0' + seconds : seconds;
+        
+                    timerElement.innerText = `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+                }
+            }
+        
+            function formatTime(seconds) {
+                const hours = Math.floor(seconds / 3600);
+                const minutes = Math.floor((seconds % 3600) / 60);
+                const remainingSeconds = seconds % 60;
+        
+                const formattedHours = hours < 10 ? '0' + Math.floor(hours) : Math.floor(hours);
+                const formattedMinutes = minutes < 10 ? '0' + Math.floor(minutes) : Math.floor(minutes);
+                const formattedSeconds = remainingSeconds < 10 ? '0' + Math.floor(remainingSeconds) : Math.floor(remainingSeconds);
+        
+                return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+            }
+    
+    </script>
+    
+{% endblock %}

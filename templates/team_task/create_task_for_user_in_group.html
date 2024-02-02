@@ -1,0 +1,14 @@
+{% extends 'ToDoapp/layout.html' %}
+
+{% block content %}
+<h1>Створити завдання для користувача з групи</h1>
+
+<form action="{% url 'create_task_for_user_in_group' group.id %}" method="post">
+  {% csrf_token %}
+
+  {{ task_form.as_p }}
+  {{ user_group_form.as_p }}
+
+  <input type="submit" value="Створити завдання">
+</form>
+{% endblock %}

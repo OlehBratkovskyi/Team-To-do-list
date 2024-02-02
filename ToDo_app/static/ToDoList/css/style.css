@@ -1,0 +1,638 @@
+*{
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+/* змінюємо ширину блоку так щоб було зручно верстати */
+*,*::before,*::after{
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+/* прибираємо лінії обведення в деяких браузерах */
+:focus,:active{outline: none;}
+a:focus,a:active{outline: none;}
+/* робимо теги блочними */
+nav,footer,header,aside{display: block;}
+/* параметри урівнюють поведінку шрифтів в різних браузерах+ забороняють самовільне збільшення шрифту на айфонах */
+html,body{
+  height: 100%;
+  width: 100%;
+  font-size: 100%;
+  line-height: 1;
+  font-size: 14px;
+  -ms-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+/* задаємо дефолтне наслідування шрифту */
+input,button,textarea{font-family: inherit;}
+/* прибирають різні особливості в різних браузерах і чистять стилі маркованих списків */
+input::-ms-clear{display: none;}
+button{cursor: pointer;}
+button::-moz-focus-inner {padding: 0; border: 0;}
+a, -a:visited{text-decoration: none;}
+a:hover{text-decoration: none;}
+ul-li{list-style: none;}
+img{vertical-align: top;}
+
+/* Обнуляємо всі заголовки */
+h1,h2,h3,h4,h5,h6{font-size: inherit;font-weight:-400;}
+
+.header-container {
+  background-color: rgb(44, 19, 56);
+  position: fixed;
+  top: 0;
+  left: 250px; /* Ширина бічної панелі */
+  width: calc(100% - 250px); /* Залишок ширини екрану після бічної панелі */
+  z-index: 2; /* Важливо для накладання на бічну панель */
+}
+
+body {
+  background-color: rgb(255 0 91 / 6%);
+}
+
+.profile-head {
+  color: white;
+  font-size: 17px;
+  font-weight: bold;
+  margin: 20px 20px 20px 20px;
+}
+
+/* Стилі для основного контенту */
+main {
+  margin-left: 0px; /* Ширина бічної панелі плюс внутрішній відступ */
+  margin-top: 0px;
+  padding-top: 0px;
+}
+
+.container {
+  margin: 15px 15px 15px 15px;
+}
+
+.aligned_header {
+    text-align: center;
+    font-size: 40px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-style: normal;
+    letter-spacing: 1px;
+    color: #E57CD8;
+    padding: 20px 0px 20px 0px;
+    background-color: rgb(44, 19, 56);
+}
+
+.test_style{
+    text-align: center;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-style: italic;
+    letter-spacing: 1px;
+    padding: 0px 0px 20px 0px;
+    color: #E57CD8;;
+}
+
+.add_new_task {
+  display: flex;
+  align-items: center; /* Відцентрувати по вертикалі */
+  font-size: 24px;
+  font-weight: 500;
+  padding: 0px 0px 0px 10px;
+}
+
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Змінив на півпрозорий фон */
+  display: none;
+  z-index: 1;
+}
+
+.popup-add {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 600px;
+  width: 100%;
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.add_icon {
+  fill: rgb(142, 67, 165);
+  width: 35px;
+  height: 35px;
+  cursor: pointer;
+  margin: 0px 0px 5px 5px;
+}
+
+.closed_icon {
+  fill: rgb(142, 67, 165);
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: inline-block;
+}
+
+#showPopup:checked ~ #hiddenPopup {
+  display: block;
+}
+
+.field {
+  text-align: center;
+  font-size: 32px;
+  margin: 10px;
+}
+
+/* Один і той же стиль для input та textarea */
+input, textarea {
+  resize: none;   /* Забороняє змінювати розмір тектаріа */
+  display: block; /* Встановлюємо елементи як блоки */
+  margin: 12px auto; /* Відцентровуємо їх горизонтально */
+  font-size: 25px;
+  border: 1px solid rgb(142, 67, 165);
+  border-radius: 10px;
+  padding: 5px;
+  width: 100%; /* Розтягнути на всю доступну ширину */
+  box-sizing: border-box; /* Включити padding і border в обчислення ширини */
+}
+.container-add-search {
+  display: flex;
+  align-items: baseline;
+}
+
+/* Специфічні стилі для .search */
+.search {
+  flex: 1;
+  padding: 5px;
+  width: 30%; /* Встановлюємо власну ширину */
+  /* Додайте інші стилі, які потрібні лише для .search */
+}
+
+.add-task{
+  display: flex; /* Займуть однаковий доступний простір */
+  align-items: baseline;
+}
+
+
+/* Скасування загальних стилів для input і textarea */
+.search input,
+.search textarea {
+  resize: none;
+  display: inline; /* Змінюємо на inline або залиште block, в залежності від вашого вимог */
+  margin: 12px auto; /* Відцентровуємо їх горизонтально */
+  font-size: 25px;
+  border: 1px solid rgb(142, 67, 165);
+  border-radius: 10px;
+  padding: 5px;
+  width: auto; /* Скасовуємо width */
+  box-sizing: content-box; /* Скасовуємо box-sizing */
+}
+
+.add_button {
+  padding: 10px 20px;
+  font-size: 20px;
+  color: white;
+  border: 1px solid;
+  border-radius: 5px;
+  border-color: lightpink;
+  background-color: rgb(142, 67, 165);
+}
+
+.segments, .search-result {
+  position: relative;
+  border-top: 2px solid rgb(142, 67, 165);
+  border-bottom: 2px solid rgb(142, 67, 165);
+  border-color: rgb(212, 183, 240);
+  margin: 10px 0px 10px 0px;
+  padding: 10px 10px 20px 10px;
+  background-color: white;
+}
+
+.header {
+  display: block;
+  font-size: 20px;
+  font-weight: 550;
+  color: black;
+}
+
+.status-task1 {
+  margin: 20px 0px 0px 0px;
+}
+
+.status-task2 {
+  margin: 20px 0px 0px 0px;
+}
+
+.detail {
+  display: block;
+  font-size: 18px;
+  color: rgb(142, 67, 165);
+  margin: 5px 0px 20px 0px;
+  cursor: pointer;
+}
+
+.view-icon {
+  width: 1em; /* Задайте бажаний розмір іконки */
+  height: auto;
+  vertical-align: middle; /* Вирівнювання іконки по вертикалі */
+  margin-right: 5px; /* Простір між іконкою і текстом */
+  fill: currentColor; /* Заливка іконки кольором тексту */
+}
+
+.popup_detail {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Змінив на півпрозорий фон */
+  display: none;
+  z-index: 1;
+}
+
+.detailpop {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 600px;
+  width: 100%;
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.closed_icon {
+  fill: rgb(142, 67, 165);
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: inline-block;
+}
+
+.popup_detail:target ~ .overlay {
+  display: block;
+}
+
+[id^="showPopup_details"]:checked + [id^="hiddenPopup-details"] {
+  display: block;
+}
+
+.task-info {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 20px 20px 20px 20px;
+  text-align: left;
+}
+
+.description-info {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 20px 0px 0px 0px;
+}
+
+.title-name {
+  font-weight: normal;
+  margin: 10px 10px 10px 10px;
+}
+
+.description-name {
+  font-weight: normal;
+  margin: 10px 10px 10px 10px;
+}
+
+.edit_task {
+  fill: rgb(142, 67, 165);
+  width: 25px;
+  height: 25px;
+  cursor: pointer;
+  display: inline-block;
+  position: absolute;
+  top: 0px;
+  right: 40px;
+  margin: 3px 0px 0px 0px;
+}
+
+.popup_edit {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Змінив на півпрозорий фон */
+  display: none;
+  z-index: 1;
+}
+
+.popup-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 600px;
+  width: 100%;
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.popup_edit:target {
+  display: block;
+}
+
+.save_changes {
+  padding: 10px 20px;
+  font-size: 20px;
+  color: white;
+  border: 1px solid;
+  border-radius: 5px;
+  border-color: lightpink;
+  background-color: rgb(142, 67, 165);
+}
+
+.delete_button {
+  fill: rgb(142, 67, 165);
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.green_lable {
+  border: 1px solid rgba(37, 189, 37, 0.856);
+  background-color: rgba(37, 189, 37, 0.856);
+  border-radius: 5px;
+  font-size: 17px;
+  font-weight: bold;
+  padding: 10px 15px;
+  color: black;
+  margin: 0px 10px 20px 0px;
+}
+
+.open_button {
+  border: 1px solid rgba(0, 153, 255, 0.856);
+  background-color: rgba(0, 153, 255, 0.856);
+  border-radius: 5px;
+  font-size: 17px;
+  font-weight: bold;
+  padding: 10px 15px;
+  color: black;
+  margin: 0px 10px 20px 0px;
+}
+
+.grey_lable {
+  border: 1px solid rgb(243, 177, 79);
+  background-color: rgb(243, 177, 79);
+  border-radius: 5px;
+  font-size: 17px;
+  font-weight: bold;
+  padding: 10px 15px;
+  color: black;
+  margin: 0px 10px 20px 0px;
+}
+
+.end_task_button {
+  border: 1px solid rgba(0, 153, 255, 0.856);
+  background-color: rgba(0, 153, 255, 0.856);
+  border-radius: 5px;
+  font-size: 17px;
+  font-weight: bold;
+  padding: 10px 15px;
+  color: black;
+  margin: 0px 10px 20px 0px;
+}
+
+
+
+/* team_task delete task */
+.delete-task {
+  fill: rgb(142, 67, 165);
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.edit-task-btn {
+  fill: rgb(142, 67, 165);
+  width: 25px;
+  height: 25px;
+  cursor: pointer;
+  display: inline-block;
+  position: absolute;
+  top: 0px;
+  right: 40px;
+  margin: 3px 0px 0px 0px;
+}
+
+.popup_edit {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Змінив на півпрозорий фон */
+  display: none;
+  z-index: 1;
+}
+
+.popup-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 600px;
+  width: 100%;
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.popup_edit:target {
+  display: block;
+}
+
+.save_changes {
+  padding: 10px 20px;
+  font-size: 20px;
+  color: white;
+  border: 1px solid;
+  border-radius: 5px;
+  border-color: lightpink;
+  background-color: rgb(142, 67, 165);
+}
+
+.closed_icon {
+  
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: inline-block;
+}
+.searching {
+  flex: 1;
+  padding: 5px;
+  position: relative;
+  z-index: 0;
+}
+.created_at{
+  fill: rgb(142, 67, 165);
+  display: inline-block;
+  position: absolute;
+  bottom: 5px; /* відстань від нижнього краю */
+  right: 5px; /* відстань від правого краю */
+  margin: 3px 0px 0px 0px;
+}
+
+.task-info {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 20px 20px 20px 20px;
+  text-align: left;
+}
+
+.description-info {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 20px 0px 0px 0px;
+}
+
+.title-name {
+  font-weight: normal;
+  margin: 10px 10px 10px 10px;
+}
+
+.description-name {
+  font-weight: normal;
+  margin: 10px 10px 10px 10px;
+}
+
+/* Стилі для лейбла з айді "task-title" */
+.field {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 20px 20px 20px 20px;
+  text-align: left;
+}
+
+.name_list {
+  font-size: 24px;
+  font-weight: 500;
+  padding: 0px 0px 0px 10px;
+}
+.nav-link{
+  color: rgb(142, 67, 165) !important;
+}
+/* Додайте ці стилі до вашого CSS файлу */
+.nav-link.active {
+  background-color: rgb(142, 67, 165); /* Колір фону для активної вкладки */
+  color: #fff !important; /* Колір тексту для активної вкладки */
+  border-radius: 5px; /* Закруглення кутів */
+}
+
+.nav-link.active:hover {
+  background-color: rgb(171, 103, 192); /* Колір фону для активної вкладки при наведенні курсора */
+  color: #fff;
+}
+
+#sidebar {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 1;
+  align-items: center; /* Додано для вертикального вирівнювання основного контенту */
+}
+/* Сховати основний контент при закритому сайдбарі */
+#sidebar:not(.show) ~ #main-content {
+  margin-left: 0;
+}
+
+#main-content {
+  transition: margin-left 0.5s; /* Додано анімацію для плавного переходу */
+}
+
+/* Змініть це значення на ширину сайдбару, щоб основний контент залишався видимим */
+#sidebar.show ~ #main-content {
+  margin-left: 250px; 
+}
+
+
+.timer_progress {
+    display: inline-block;
+    position: absolute;
+    text-align: center;
+    bottom: 30px; /* відстань від нижнього краю */
+    right: 5px; /* відстань від правого краю */
+    margin: 3px 0px 0px 0px;
+  }
+
+/* Стилі для рядка таймера */
+.timer_row {
+  display: flex;
+  align-items: center;
+  margin: 3px 3px 3px 3px;
+
+}
+
+
+      /* Стилі для вашого поля таймера */
+.timert {
+  font-size: 13px;
+  color: #000000;
+  font-weight: bold;
+  border-radius: 20px;
+  padding: 2px 4px;
+  background-color: #ffffff;
+  display: inline-block;
+  border: 2px solid rgb(142, 67, 165);
+  margin: 3px;
+  position: absolute;
+  display: inline-block;
+  right: 72px;
+  top: 0;
+}
+.timer{
+  font-size: 13px;
+  color: #000000;
+  font-weight: bold;
+  margin: 3px 3px 3px 3px;
+}
+.timert_assigned {
+  font-size: 13px;
+  color: #000000;
+  font-weight: bold;
+  border-radius: 20px;
+  padding: 2px 4px;
+  background-color: #ffffff;
+  display: inline-block;
+  border: 2px solid rgb(142, 67, 165);
+  cursor: pointer;
+  position: absolute;
+  top: 3px;
+  right: 5px;
+}

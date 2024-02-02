@@ -1,0 +1,18 @@
+{% extends 'ToDoapp/layout.html' %}
+{% block content %}
+<h1>Ваші завдання, призначені іншим користувачам</h1>
+<ul>
+    {% for task in created_tasks %}
+        <li>
+            <strong>{{ task.title }}</strong>
+            <p>Опис: {{ task.description }}</p>
+            <p>Призначено: {{ task.assigned_to.user.first_name }} {{ task.assigned_to.user.last_name }}</p>
+            {% if task.is_complete %}
+                <p>Статус: Завершено</p>
+            {% else %}
+                <p>Статус: Не завершено</p>
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}
